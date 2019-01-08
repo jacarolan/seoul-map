@@ -7,11 +7,11 @@ import cv2
 
 graphVar = 2
 
-minVal = 0
-maxVal = 0.8
+minVal = 0.01
+maxVal = 0.07
 
-colLow = (250, 140, 120)
-colHigh = (120, 55, 40)
+colLow = (255, 170, 130)
+colHigh = (100, 40, 38)
 
 prevData = [0] * 25
 
@@ -25,7 +25,7 @@ def main():
 
     #baseMap = drawRegion(baseMap, 5, (0, 255, 0))
 
-    for i in range(2):
+    for i in range(169):
 
         baseMap = drawChunk(baseMap, dataFile)
         
@@ -49,14 +49,19 @@ def drawChunk(map, file):
 
         line = file.readline().split(",")
 
-        dataVal = float(line[graphVar].replace("\"", ""))
-        prevData[i] = dataVal
+        dataVal = 0
+
+        try:
+            dataVal = float(line[graphVar].replace("\"", ""))
+            prevData[i] = dataVal
+        except ValueError:
+            dataVal = prevData[i]
 
         paraVal = (maxVal-dataVal)/(maxVal-minVal)
 
-        col = (colLow[0]*paraVal + colHigh[0]*(1-paraVal), \
-            colLow[1]*paraVal + colHigh[1]*(1-paraVal), \
-            colLow[2]*paraVal + colHigh[2]*(1-paraVal))
+        col = (int(colLow[0]*paraVal + colHigh[0]*(1-paraVal)), \
+            int(colLow[1]*paraVal + colHigh[1]*(1-paraVal)), \
+            int(colLow[2]*paraVal + colHigh[2]*(1-paraVal)))
 
         map = drawRegion(map, korToId(line[1]), col)
 
