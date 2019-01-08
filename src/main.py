@@ -2,6 +2,18 @@
 
 from PIL import Image
 import numpy as np
+import time
+import cv2
+
+graphVar = 2
+
+minVal = 0
+maxVal = 0.8
+
+colLow = (250, 140, 120)
+colHigh = (120, 55, 40)
+
+prevData = [0] * 25
 
 
 def main():
@@ -13,15 +25,42 @@ def main():
 
     #baseMap = drawRegion(baseMap, 5, (0, 255, 0))
 
-    baseMap = drawLine(baseMap, dataFile)
+    for i in range(2):
 
-    baseMap.show()
+        baseMap = drawChunk(baseMap, dataFile)
+        
+        if graphVar == 2:
+            baseMap.save("anim/no2/img"+str(i)+".png", "PNG")
+        elif graphVar == 3:
+            baseMap.save("anim/o3/img"+str(i)+".png", "PNG")
+        elif graphVar == 4:
+            baseMap.save("anim/co/img"+str(i)+".png", "PNG")
+        elif graphVar == 5:
+            baseMap.save("anim/so2/img"+str(i)+".png", "PNG")
+        elif graphVar == 6:
+            baseMap.save("anim/finedust/img"+str(i)+".png", "PNG")
+        elif graphVar == 7:
+            baseMap.save("anim/ultrafinedust/img"+str(i)+".png", "PNG")
 
-def drawLine(map, file):
+def drawChunk(map, file):
 
-    line = file.readline().split(",")
 
-    return drawRegion(map, korToId(line[1]), (0, 0, 0))
+    for i in range(25):
+
+        line = file.readline().split(",")
+
+        dataVal = float(line[graphVar].replace("\"", ""))
+        prevData[i] = dataVal
+
+        paraVal = (maxVal-dataVal)/(maxVal-minVal)
+
+        col = (colLow[0]*paraVal + colHigh[0]*(1-paraVal), \
+            colLow[1]*paraVal + colHigh[1]*(1-paraVal), \
+            colLow[2]*paraVal + colHigh[2]*(1-paraVal))
+
+        map = drawRegion(map, korToId(line[1]), col)
+
+    return map
 
 def drawRegion(map, region, fill):
     
