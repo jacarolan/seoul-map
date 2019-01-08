@@ -13,7 +13,7 @@ def main():
 
     #baseMap = drawRegion(baseMap, 5, (0, 255, 0))
 
-    baseMap = drawLine(map, dataFile)
+    baseMap = drawLine(baseMap, dataFile)
 
     baseMap.show()
 
@@ -91,7 +91,7 @@ def korToId(district):
     "영등포구": 24, \
     "용산구": 25};
 
-    return korIdDict[district]
+    return korIdDict[district.replace("\"", "")]
 
 def toName(distId):
 
