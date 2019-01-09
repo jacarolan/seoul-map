@@ -6,64 +6,91 @@ import time
 import cv2
 
 graphVar = 2
+startLine = 0
 
-minVal = 0.01
-maxVal = 0.07
+minVal = -10
+maxVal = 30
 
-colLow = (255, 170, 130)
-colHigh = (100, 40, 38)
+colLow = (20, 200, 255)
+colHigh = (230, 100, 0)
 
+global prevData
 prevData = [0] * 25
 
+global prevLine
+prevLine = []
 
 def main():
 
-    dataFile = open("data/SeoulPollution.csv", 'r')
+    dataFile = open("data/SeoulClimate.csv", 'r')
+
+    global prevLine
+    prevLine = dataFile.readline().split(",")
+
+    for i in range(startLine):
+        dataFile.readline();
 
     baseMap = Image.open("data/SeoulTemplate.png")
     baseMap.convert("RGBA")
 
     #baseMap = drawRegion(baseMap, 5, (0, 255, 0))
 
-    for i in range(169):
+    for i in range(365):
 
-        baseMap = drawChunk(baseMap, dataFile)
+        dayMap = drawDay(baseMap, dataFile)
+        #dayMap.show()
+        print "Writing date", prevLine[0],"to file"
         
         if graphVar == 2:
-            baseMap.save("anim/no2/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/avgtemp/img"+str(i)+".png", "PNG")
         elif graphVar == 3:
-            baseMap.save("anim/o3/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/o3/img"+str(i)+".png", "PNG")
         elif graphVar == 4:
-            baseMap.save("anim/co/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/co/img"+str(i)+".png", "PNG")
         elif graphVar == 5:
-            baseMap.save("anim/so2/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/so2/img"+str(i)+".png", "PNG")
         elif graphVar == 6:
-            baseMap.save("anim/finedust/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/finedust/img"+str(i)+".png", "PNG")
         elif graphVar == 7:
-            baseMap.save("anim/ultrafinedust/img"+str(i)+".png", "PNG")
+            dayMap.save("anim/ultrafinedust/img"+str(i)+".png", "PNG")
 
-def drawChunk(map, file):
+def drawDay(map, file):
 
+    day = prevLine[0][1:9]
 
-    for i in range(25):
+    readingDay = True
+
+    while readingDay:
 
         line = file.readline().split(",")
 
-        dataVal = 0
+        if line[0][1:9] != day:
+            global prevLine
+            prevLine = line
+            readingDay = False
+
+        distId = 0
 
         try:
-            dataVal = float(line[graphVar].replace("\"", ""))
-            prevData[i] = dataVal
-        except ValueError:
-            dataVal = prevData[i]
+            distId = korToId(line[1])
+        except KeyError:
+            continue
 
-        paraVal = (maxVal-dataVal)/(maxVal-minVal)
+        try:
+            global prevData
+            prevData[distId-1] = float(line[graphVar].replace("\"", ""))
+        except ValueError:
+            pass
+
+    for distId in range(25):
+
+        paraVal = (maxVal-prevData[distId])/(maxVal-minVal)
 
         col = (int(colLow[0]*paraVal + colHigh[0]*(1-paraVal)), \
             int(colLow[1]*paraVal + colHigh[1]*(1-paraVal)), \
             int(colLow[2]*paraVal + colHigh[2]*(1-paraVal)))
 
-        map = drawRegion(map, korToId(line[1]), col)
+        map = drawRegion(map, distId+1, col)
 
     return map
 
@@ -133,7 +160,32 @@ def korToId(district):
     "송파구": 22, \
     "양천구": 23, \
     "영등포구": 24, \
-    "용산구": 25};
+    "용산구": 25, \
+    "도봉": 1, \
+    "동대문": 2, \
+    "동작": 3, \
+    "은평": 4, \
+    "강북": 5, \
+    "강동": 6, \
+    "강남": 7, \
+    "강서": 8, \
+    "금천": 9, \
+    "구로": 10, \
+    "관악": 11, \
+    "광진": 12, \
+    "종로": 13, \
+    "중": 14, \
+    "중랑": 15, \
+    "마포": 16, \
+    "노원": 17, \
+    "서초": 18, \
+    "서대문": 19, \
+    "성북": 20, \
+    "성동": 21, \
+    "송파": 22, \
+    "양천": 23, \
+    "영등포": 24, \
+    "용산": 25};
 
     return korIdDict[district.replace("\"", "")]
 
