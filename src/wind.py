@@ -5,14 +5,14 @@ import numpy as np
 import time
 import cv2
 
-graphVar = 5
+graphVar = 8
 startLine = 0
 
 minVal = 0
 maxVal = 100
 
-colLow = (100, 100, 100)
-colHigh = (0, 200, 125)
+colLow = (225, 225, 225)
+colHigh = (225, 100, 100)
 
 global prevData
 prevData = [0] * 25

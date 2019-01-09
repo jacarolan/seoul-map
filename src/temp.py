@@ -8,7 +8,7 @@ import cv2
 graphVar = 2
 startLine = 0
 
-minVal = -15
+minVal = -25
 maxVal = 35
 
 colLow = (20, 200, 255)
